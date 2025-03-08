@@ -19,14 +19,13 @@ export default function SignUpPage() {
         regNo: regNo,
         password: password,
       });
-      if(response){
         if(response){
             localStorage.setItem("examinationCellToken", response.data.userInfo.token)
             localStorage.setItem("examinationcellUserName", response.data.userInfo.name)
             localStorage.setItem("examinationcellUserRegNo", response.data.userInfo.regNo)
             navigate('/dashboard')
         }
-      }
+        setSignloading(false)
     } 
     catch(e){
       console.log("Internal server error");
