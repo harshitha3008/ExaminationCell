@@ -6,9 +6,9 @@ export default function NotificationBox({ data }: { data: any }) {
       {data.map((item: any, index: any) => (
         <motion.div
           key={index} // Moved key to the correct position
-          initial={{ opacity: 0, x: 150 }} // Start from right
-          animate={{ opacity: 1, x: 0 }} // Animate to normal position
-          transition={{ duration: 0.75, delay: index * 0.1 }} // Delay for each item
+          initial={{ opacity: 0, y: 150 }} // Start from right
+          animate={{ opacity: 1, y: 0 }} // Animate to normal position
+          transition={{ duration: 0.75, delay: index * 0.2 }} // Delay for each item
         >
           <div
             className="flex p-5 border rounded-xl shadow-lg font-normal hover:shadow-2xl hover:scale-105 transition-transform duration-300 bg-gradient-to-br gap-3 from-white to-blue-200"
