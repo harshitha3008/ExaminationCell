@@ -12,7 +12,9 @@ const SettingsPage = lazy (()=> import('./pages/Settings'))
 const SignInPage = lazy(()=> import('./pages/SignIn'))
 const SignUpPage = lazy(()=> import('./pages/SignUp'))
 const StudentsPage = lazy(()=> import('./pages/Students'))
+const Supple = lazy(()=> import('./pages/supple'))
 const StudentForm = lazy(() => import('./components/addstudent'));
+
 
 function App() {
   return(<div>
@@ -64,15 +66,20 @@ function App() {
           </UnAuthorized>
         } />
 
-        {/* Add the StudentForm route */}
+
+       <Route path="/supple" element={
+          <UnAuthorized>
+            <Supple />
+          </UnAuthorized>
+        } />
+
         <Route
             path="/students/add"
             element={
               <UnAuthorized>
                 <StudentForm />
               </UnAuthorized>
-            }
-          />
+            } />
 
       </Routes>
     </Suspense>
