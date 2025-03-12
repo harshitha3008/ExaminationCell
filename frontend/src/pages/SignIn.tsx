@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Signatom } from "../atoms/sign";
+import { Signatom } from "../atoms/Sign";
 import { useRecoilState } from "recoil";
 
 export default function SignInPage() {
