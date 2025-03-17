@@ -7,55 +7,31 @@ router.use(express.json());
 const authMiddleware = require('../middleware/tokenVerification');
 router.use(authMiddleware);
 
+router.get('/', (req, res) => {
+    res.json({ msg: "hii from setting" });
+});
 
+router.post("/update", async (req, res) => {
+    const { regNo, password, name } = req.body;
+    
+    try {
+        const bcrypt = require('bcrypt');
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-// Update Profile (Change Name or Password)
-// router.put('/update-profile', async (req, res) => {
-//     const { userId } = req.user; // Extract user ID from the token
-//     const { name, oldPassword, newPassword } = req.body;
+        const updatedUser = await prisma.student.update({
+            where: { regNo },
+            data: { name, password: hashedPassword }, // Hashing password before saving
+        });
 
-//     try {
-//         // Find user by ID
-//         const user = await prisma.user.findUnique({ where: { id: userId } });
-
-//         if (!user) {
-//             return res.status(404).json({ message: "User not found" });
-//         }
-
-//         // If user wants to change the password
-//         if (oldPassword && newPassword) {
-//             const bcrypt = require('bcrypt');
-//             const isMatch = await bcrypt.compare(oldPassword, user.password);
-
-//             if (!isMatch) {
-//                 return res.status(400).json({ message: "Incorrect old password" });
-//             }
-
-//             const hashedPassword = await bcrypt.hash(newPassword, 10);
-//             await prisma.user.update({
-//                 where: { id: userId },
-//                 data: { password: hashedPassword },
-//             });
-
-//             return res.json({ message: "Password updated successfully" });
-//         }
-
-//         // If user wants to update name
-//         if (name) {
-//             await prisma.user.update({
-//                 where: { id: userId },
-//                 data: { name },
-//             });
-
-//             return res.json({ message: "Profile updated successfully" });
-//         }
-
-//         res.status(400).json({ message: "No changes provided" });
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).json({ message: "Server error" });
-//     }
-// });
+        res.status(200).json({ message: "User updated successfully" });
+    } catch (error) {
+        console.error("Error updating user:", error);
+        if (error.code === "P2025") {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
 
 // Change Theme
 router.put('/theme', async (req, res) => {
@@ -80,9 +56,7 @@ router.put('/theme', async (req, res) => {
 });
 
 // Delete Account
-router.put('/delete-account',authMiddleware,async (req, res) => {
-
-    // const { userId } = req.user;
+router.put('/delete-account', authMiddleware, async (req, res) => {
     const { regdNumber, password, confirmPassword } = req.body;
 
     if (!regdNumber || !password || !confirmPassword) {
@@ -95,32 +69,20 @@ router.put('/delete-account',authMiddleware,async (req, res) => {
 
     try {
         const user = await prisma.student.findFirst({
-            where : {
-                regNo: regdNumber,
-                password : password
-            }
-        })
+            where: { regNo: regdNumber, password },
+        });
 
         if (!user) {
             res.status(404).json({ message: "User not found or incorrect registration number." });
             return;
         }
-        else{
-            await prisma.student.delete({
-                where : {
-                    id : user.id
-                }
-            })
-            res.json({ message: "Account deleted successfully." });
-            return;
-        }
 
+        await prisma.student.delete({ where: { id: user.id } });
+        res.json({ message: "Account deleted successfully." });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error." });
     }
 });
 
-module.exports = {
-    router
-};
+module.exports = { router };
