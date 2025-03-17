@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
 import { Route, Routes } from "react-router-dom";
+import { ThemeProvider } from "./context/ThemeContext.tsx";
 
 
 import Loading from "./components/Loading";
@@ -16,6 +17,7 @@ const StudentsPage = lazy(()=> import('./pages/Students'))
 
 function App() {
   return(<div>
+    <ThemeProvider>
     <Suspense fallback={<div><Loading /></div>}>
       <Routes>
 
@@ -66,6 +68,7 @@ function App() {
 
       </Routes>
     </Suspense>
+    </ThemeProvider>
   </div>)
 }
 
