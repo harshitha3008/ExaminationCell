@@ -7,7 +7,6 @@ router.use(express.json());
 const authMiddleware = require('../middleware/tokenVerification');
 router.use(authMiddleware);
 
-
 // Change Theme
 router.put('/theme', async (req, res) => {
     const { userId } = req.user;
@@ -30,10 +29,33 @@ router.put('/theme', async (req, res) => {
     }
 });
 
-// Delete Account
-router.put('/delete-account',authMiddleware,async (req, res) => {
+// Test Route
+router.get('/', (req, res) => {
+    res.json({
+        msg: "Hi from settings"
+    });
+});
 
-    // const { userId } = req.user;
+// Update User
+router.post("/update", async (req, res) => {
+    const { regNo, password, name } = req.body;
+    try {
+        const updatedUser = await prisma.student.update({
+            where: { regNo },
+            data: { name, password },
+        });
+        res.status(200).json({ message: "User updated successfully" });
+    } catch (error) {
+        console.error("Error updating user:", error);
+        if (error.code === "P2025") {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+// Delete Account
+router.put('/delete-account', async (req, res) => {
     const { regdNumber, password, confirmPassword } = req.body;
 
     if (!regdNumber || !password || !confirmPassword) {
@@ -46,25 +68,23 @@ router.put('/delete-account',authMiddleware,async (req, res) => {
 
     try {
         const user = await prisma.student.findFirst({
-            where : {
+            where: {
                 regNo: regdNumber,
-                password : password
+                password: password
             }
-        })
+        });
 
         if (!user) {
-            res.status(404).json({ message: "User not found or incorrect registration number." });
-            return;
+            return res.status(404).json({ message: "User not found or incorrect registration number." });
         }
-        else{
-            await prisma.student.delete({
-                where : {
-                    id : user.id
-                }
-            })
-            res.json({ message: "Account deleted successfully." });
-            return;
-        }
+
+        await prisma.student.delete({
+            where: {
+                id: user.id
+            }
+        });
+
+        res.json({ message: "Account deleted successfully." });
 
     } catch (error) {
         console.error(error);
@@ -72,6 +92,4 @@ router.put('/delete-account',authMiddleware,async (req, res) => {
     }
 });
 
-module.exports = {
-    router
-};
+module.exports = router;
